@@ -1,0 +1,4 @@
+# Dependencias diretas de producao. O requirements.txt (com hashes) e gerado
+# a partir deste arquivo com pip-compile; veja o README.
+flask
+gunicorn

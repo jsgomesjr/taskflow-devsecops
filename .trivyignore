@@ -1,0 +1,2 @@
+# Achados do Trivy aceitos como risco, um por linha, sempre com justificativa,
+# data e responsavel. Arquivo vazio = nenhum achado aceito.

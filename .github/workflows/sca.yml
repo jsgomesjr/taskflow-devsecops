@@ -1,0 +1,60 @@
+name: SCA
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIP_AUDIT_VERSION: "2.10.1"
+
+jobs:
+  pip-audit:
+    name: SCA - pip-audit (${{ matrix.requirements }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        requirements: [requirements.txt, requirements-dev.txt]
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar Python
+        uses: ./.github/actions/setup-python
+
+      - name: Instalar pip-audit
+        run: python -m pip install "pip-audit==${PIP_AUDIT_VERSION}"
+
+      - name: Auditar ${{ matrix.requirements }} (falha com qualquer CVE conhecida)
+        env:
+          REQUIREMENTS: ${{ matrix.requirements }}
+        run: pip-audit --strict --desc on -r "$REQUIREMENTS"
+
+  trivy-fs:
+    name: SCA - Trivy (dependencias)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Trivy nas dependencias declaradas no repositorio
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan-type: fs
+          scan-ref: .

@@ -1,0 +1,40 @@
+name: Scan com Trivy
+description: >-
+  Ponto unico de configuracao do Trivy na esteira: versao fixada e severidade
+  de corte do gate. Falha o job quando ha achado na severidade de corte que nao
+  esteja aceito, com justificativa, no .trivyignore.
+
+inputs:
+  scan-type:
+    description: Tipo de scan do Trivy (image, fs ou config).
+    required: true
+  scan-ref:
+    description: Alvo do scan (nome da imagem ou caminho).
+    required: true
+  scanners:
+    description: Scanners do Trivy a habilitar (vuln, misconfig, secret).
+    required: false
+    default: vuln
+  severity:
+    description: Severidades que reprovam o gate.
+    required: false
+    default: HIGH,CRITICAL
+  version:
+    description: Versao do binario do Trivy.
+    required: false
+    default: v0.74.0
+
+runs:
+  using: composite
+  steps:
+    - name: Rodar Trivy (${{ inputs.scan-type }})
+      uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+      with:
+        version: ${{ inputs.version }}
+        scan-type: ${{ inputs.scan-type }}
+        scan-ref: ${{ inputs.scan-ref }}
+        image-ref: ${{ inputs.scan-type == 'image' && inputs.scan-ref || '' }}
+        scanners: ${{ inputs.scanners }}
+        severity: ${{ inputs.severity }}
+        trivyignores: .trivyignore
+        exit-code: "1"
