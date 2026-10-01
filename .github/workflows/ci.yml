@@ -32,3 +32,24 @@ jobs:
 
       - name: Lint com ruff
         run: ruff check --output-format=github .
+
+      - name: Formatacao com ruff
+        run: ruff format --check .
+
+  testes:
+    name: Testes (pytest)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar Python com dependencias da aplicacao e de teste
+        uses: ./.github/actions/setup-python
+        with:
+          requirements: requirements.txt requirements-dev.txt
+
+      - name: Rodar testes
+        run: pytest -v
