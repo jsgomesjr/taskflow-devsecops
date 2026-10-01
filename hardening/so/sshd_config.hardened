@@ -1,0 +1,23 @@
+# sshd_config endurecido (base: codigo/hardening/sshd_config.hardened da disciplina).
+Port 22
+PermitRootLogin no
+PasswordAuthentication no
+PermitEmptyPasswords no
+PubkeyAuthentication yes
+KerberosAuthentication no
+GSSAPIAuthentication no
+MaxAuthTries 3
+MaxSessions 2
+LoginGraceTime 30
+AllowUsers aluno
+X11Forwarding no
+AllowAgentForwarding no
+AllowTcpForwarding no
+TCPKeepAlive no
+ClientAliveInterval 300
+ClientAliveCountMax 2
+Compression no
+DebianBanner no
+Banner /etc/issue.net
+LogLevel VERBOSE
+Subsystem sftp /usr/lib/openssh/sftp-server
