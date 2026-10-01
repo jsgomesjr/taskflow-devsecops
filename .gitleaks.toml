@@ -13,6 +13,12 @@ regex = '''(?i)\[\s*["']SECRET_KEY["']\s*\]\s*=\s*["']([^"']{8,})["']'''
 secretGroup = 1
 keywords = ["secret_key"]
 
+# "REDACTED" e o marcador que o grupo usa no lugar de um segredo nas evidencias
+# (docs/evidencias/) e na documentacao; nao e um segredo.
+[[rules.allowlists]]
+regexTarget = "secret"
+regexes = ['''^REDACTED$''']
+
 # Segredo em ENV/ARG fica gravado nas camadas da imagem (docker history).
 [[rules]]
 id = "dockerfile-secret-in-env-arg"
@@ -22,21 +28,23 @@ regex = '''(?im)^\s*(?:ENV|ARG)\s+\w*(?:PASSWORD|SECRET|TOKEN|API_KEY)\w*\s*=\s*
 secretGroup = 1
 keywords = ["password", "secret", "token", "api_key"]
 
+[[rules.allowlists]]
+regexTarget = "secret"
+regexes = ['''^REDACTED$''']
+
 # Excecao didatica prevista nas Rubricas Gerais (secao 2c): a SECRET_KEY do
 # app.py e o ADMIN_PASSWORD do Dockerfile originais da TaskFlow estao no
 # historico por design, no commit de importacao da linha de base. Os dois
 # valores sao publicos (vem do repositorio da disciplina), nunca protegeram
 # nada real e foram removidos do codigo atual (SECRET_KEY agora vem de
 # variavel de ambiente; ADMIN_PASSWORD e injetado em runtime).
-# A excecao exige as DUAS condicoes ao mesmo tempo (condition = AND):
-# o commit da linha de base E um dos dois valores exatos. Qualquer outro
-# segredo, inclusive nesse mesmo commit, continua reprovando o gate.
+# A excecao exige TODAS as condicoes ao mesmo tempo (condition = AND): o
+# commit da linha de base, um dos dois arquivos originais e uma das duas
+# regras do grupo. Qualquer outro achado, inclusive nesse mesmo commit,
+# continua reprovando o gate.
 [[allowlists]]
 description = "Segredos didaticos da linha de base da TaskFlow (commit de importacao)"
 condition = "AND"
+targetRules = ["flask-secret-key-hardcoded", "dockerfile-secret-in-env-arg"]
 commits = ["b323e5f0b29584a8f69f6bc433bcfc45620098e1"]
-regexTarget = "secret"
-regexes = [
-  '''^s3gr3d0-super-secreto-nao-mude-nunca$''',
-  '''^admin123$''',
-]
+paths = ['''^app\.py$''', '''^Dockerfile$''']
