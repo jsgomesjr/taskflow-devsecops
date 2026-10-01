@@ -11,6 +11,11 @@ XSS_PAYLOAD = "<script>alert('xss')</script>"
 
 @pytest.fixture
 def client(tmp_path):
+    # Falso positivo aceito: a regra protege a configuracao de producao contra
+    # valores fixos no codigo. Aqui e o fixture do pytest, que nunca e carregado
+    # pela aplicacao em execucao, e ligar TESTING e exatamente o uso previsto da
+    # flag. Revisado pelo grupo no PR #3 (Atividade 1).
+    # nosemgrep: python.flask.security.audit.hardcoded-config.avoid_hardcoded_config_TESTING
     app.config.update(TESTING=True, DATABASE=str(tmp_path / "taskflow-test.db"))
     with app.app_context():
         init_db()
