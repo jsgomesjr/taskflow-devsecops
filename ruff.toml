@@ -1,0 +1,12 @@
+target-version = "py314"
+line-length = 100
+
+[lint]
+# E/W/F: erros e estilo; I: imports; B: bugs comuns; UP: sintaxe moderna;
+# S: regras de seguranca do Bandit (camada extra de SAST no lint).
+select = ["E", "W", "F", "I", "B", "UP", "S"]
+
+[lint.per-file-ignores]
+# S101: assert e o mecanismo do pytest. S105/S106: senhas ficticias de teste.
+"test_*.py" = ["S101", "S105", "S106"]
+"conftest.py" = ["S105"]
