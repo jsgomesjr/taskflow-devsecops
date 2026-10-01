@@ -1,0 +1,22 @@
+CMD ["--config" "gunicorn.conf.py" "app:app"]
+ENTRYPOINT ["python" "-m" "gunicorn"]
+HEALTHCHECK {Test:[CMD python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/login', timeout=2)] Interval:30s Timeout:3s StartPeriod:0s StartInterval:0s Retries:3}
+EXPOSE [5000/tcp]
+USER 65532:65532
+COPY templates ./templates # buildkit
+COPY app.py gunicorn.conf.py ./ # buildkit
+COPY --chown=65532:65532 /app/data /app/data # buildkit
+COPY /app/venv /app/venv # buildkit
+ENV PATH=/app/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 TASKFLOW_DATABASE=/app/data/taskflow.db
+WORKDIR /app
+apko
+apko
+apko
+apko
+apko
+apko
+apko
+apko
+apko
+apko
+apko
