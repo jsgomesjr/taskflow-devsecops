@@ -21,6 +21,12 @@ import os
 import sqlite3
 
 from flask import Flask, g, redirect, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
+
+SEED_USERS = (
+    ("admin", "TASKFLOW_ADMIN_PASSWORD"),
+    ("aluno", "TASKFLOW_ALUNO_PASSWORD"),
+)
 
 
 def require_env(name):
@@ -77,15 +83,11 @@ def init_db():
 
     cur = db.execute("SELECT COUNT(*) AS total FROM users")
     if cur.fetchone()["total"] == 0:
-        # Vulnerabilidade #4: senha em texto puro, sem hashing.
-        db.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            ("admin", "admin123"),
-        )
-        db.execute(
-            "INSERT INTO users (username, password) VALUES (?, ?)",
-            ("aluno", "senha123"),
-        )
+        for username, password_env in SEED_USERS:
+            db.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, generate_password_hash(require_env(password_env))),
+            )
         db.commit()
 
 
@@ -104,13 +106,12 @@ def login():
         password = request.form["password"]
 
         db = get_db()
-        cur = db.execute(
-            "SELECT * FROM users WHERE username = ? AND password = ?",
-            (username, password),
-        )
-        user = cur.fetchone()
+        user = db.execute(
+            "SELECT * FROM users WHERE username = ?", (username,)
+        ).fetchone()
 
-        if user:
+        if user and check_password_hash(user["password"], password):
+            session.clear()
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             return redirect(url_for("tasks"))
