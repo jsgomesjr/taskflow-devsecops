@@ -1,0 +1,30 @@
+name: Preparar Python
+description: >-
+  Instala o Python na versao definida em .python-version (fonte unica da versao)
+  e, se informado, instala arquivos de requirements conferindo os hashes.
+
+inputs:
+  requirements:
+    description: Arquivos de requirements com hashes, separados por espaco.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Configurar Python (.python-version)
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version-file: .python-version
+        cache: pip
+        cache-dependency-path: requirements*.txt
+
+    - name: Instalar dependencias com verificacao de hash
+      if: inputs.requirements != ''
+      shell: bash
+      env:
+        REQUIREMENTS: ${{ inputs.requirements }}
+      run: |
+        args=()
+        for file in $REQUIREMENTS; do args+=(-r "$file"); done
+        python -m pip install --require-hashes "${args[@]}"

@@ -1,0 +1,10 @@
+# Todo arquivo do repositorio tem os membros do grupo como responsaveis.
+# Com "Require review from Code Owners" ativo na protecao da main,
+# todo PR precisa da aprovacao de um deles antes do merge.
+* @jsgomesjr @AlanGarci4 @danielarrais @tuliocoimbra
+
+# A esteira e a configuracao de seguranca sao a parte mais sensivel:
+# mudancas aqui sao revisadas com atencao redobrada.
+/.github/ @jsgomesjr @AlanGarci4 @danielarrais @tuliocoimbra
+/.gitleaks.toml @jsgomesjr @AlanGarci4 @danielarrais @tuliocoimbra
+/Dockerfile @jsgomesjr @AlanGarci4 @danielarrais @tuliocoimbra
