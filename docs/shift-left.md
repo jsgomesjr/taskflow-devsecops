@@ -69,3 +69,21 @@ gh pr checks --watch
 Depois da demo, feche o PR sem merge (`gh pr close --delete-branch`) ou faça o merge da versão corrigida.
 
 > **Não** use um token "de teste" com formato real (`ghp_...`, `AKIA...`, `dckr_pat_...`) para demonstrar o Gitleaks: o professor procura esses padrões no histórico, e um token commitado, mesmo falso, gera o desconto de −2,0 da seção 4 das Rubricas Gerais. A SQL Injection demonstra o gate sem esse risco.
+
+## Execução registrada
+
+[PR #6](https://github.com/jsgomesjr/taskflow-devsecops/pull/6), executado com o procedimento acima:
+
+1. **Commit `feat: simplifica a consulta da busca de tarefas`**: introduz a concatenação. Três checks ficam vermelhos:
+   - [CI](https://github.com/jsgomesjr/taskflow-devsecops/actions/runs/36901238245): `Lint (ruff)` → `app.py:124:13: S608 Possible SQL injection vector through string-based query construction`; `Testes (pytest)` → `FAILED test_app.py::test_busca_resiste_a_sql_injection`.
+   - [SAST](https://github.com/jsgomesjr/taskflow-devsecops/actions/runs/36901238213): `SAST - Semgrep` → `python.flask.security.injection.tainted-sql-string`.
+2. **Tentativa de merge recusada pela proteção da `main`**, mesmo para o dono do repositório:
+
+   ```text
+   $ gh pr merge 6 --merge
+   X Pull request #6 is not mergeable: the base branch policy prohibits the merge.
+   $ gh pr view 6 --json mergeStateStatus
+   {"mergeStateStatus":"BLOCKED"}
+   ```
+
+3. **Commit `fix: volta a consulta parametrizada na busca de tarefas`** (`git revert`): os oito checks ficam verdes ([CI](https://github.com/jsgomesjr/taskflow-devsecops/actions/runs/36901445554), [SAST](https://github.com/jsgomesjr/taskflow-devsecops/actions/runs/36901445488)), o estado vira `CLEAN` e o merge é liberado. Diff líquido do PR contra a `main`: nenhum. A falha não chegou a existir na `main` em momento algum.
