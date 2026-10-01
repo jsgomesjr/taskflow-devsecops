@@ -1,0 +1,23 @@
+title = "Gitleaks - TaskFlow"
+
+# Mantem todas as regras padrao do Gitleaks e acrescenta as regras abaixo.
+[extend]
+useDefault = true
+
+# As regras padrao nao detectam a SECRET_KEY da linha de base (valor com
+# entropia baixa). Esta regra fecha essa lacuna para o padrao do Flask.
+[[rules]]
+id = "flask-secret-key-hardcoded"
+description = "SECRET_KEY do Flask com valor literal no codigo"
+regex = '''(?i)\[\s*["']SECRET_KEY["']\s*\]\s*=\s*["']([^"']{8,})["']'''
+secretGroup = 1
+keywords = ["secret_key"]
+
+# Segredo em ENV/ARG fica gravado nas camadas da imagem (docker history).
+[[rules]]
+id = "dockerfile-secret-in-env-arg"
+description = "Segredo gravado em ENV ou ARG de Dockerfile"
+path = '''(?i)(^|/)Dockerfile[^/]*$'''
+regex = '''(?im)^\s*(?:ENV|ARG)\s+\w*(?:PASSWORD|SECRET|TOKEN|API_KEY)\w*\s*=\s*["']?([^\s"']+)'''
+secretGroup = 1
+keywords = ["password", "secret", "token", "api_key"]
