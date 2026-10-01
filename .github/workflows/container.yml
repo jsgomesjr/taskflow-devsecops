@@ -44,3 +44,21 @@ jobs:
           scan-type: fs
           scan-ref: .
           scanners: misconfig
+
+      - name: Subir o container com as flags seguras e testar a aplicacao
+        run: |
+          TASKFLOW_SECRET_KEY="$(openssl rand -hex 32)"
+          TASKFLOW_ADMIN_PASSWORD="$(openssl rand -hex 16)"
+          TASKFLOW_ALUNO_PASSWORD="$(openssl rand -hex 16)"
+          export TASKFLOW_SECRET_KEY TASKFLOW_ADMIN_PASSWORD TASKFLOW_ALUNO_PASSWORD
+          scripts/docker-run-seguro.sh "$IMAGE"
+          curl --fail --silent --show-error --retry 10 --retry-delay 2 --retry-all-errors \
+            --output /dev/null http://127.0.0.1:5000/login
+          curl --fail --silent --show-error --output /dev/null --write-out "%{redirect_url}\n" \
+            --data-urlencode "username=admin" --data-urlencode "password=${TASKFLOW_ADMIN_PASSWORD}" \
+            http://127.0.0.1:5000/login | grep --quiet "/tasks$"
+          echo "Login com o container endurecido funcionando."
+
+      - name: Logs do container
+        if: always()
+        run: docker logs taskflow-seguro || true
