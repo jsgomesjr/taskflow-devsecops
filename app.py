@@ -1,20 +1,7 @@
 """
-TaskFlow - Aplicacao de exemplo da disciplina DevSecOps.
-
-ATENCAO: Esta aplicacao contem vulnerabilidades INTRODUZIDAS DE PROPOSITO
-para fins didaticos. NUNCA use este codigo como referencia de boas praticas
-e NUNCA implante em ambiente de producao ou exposto a internet.
-
-Vulnerabilidades presentes nesta versao (linha de base do curso):
-  1. SQL Injection no login e na busca de tarefas (Modulo 3 - SAST)
-  2. Cross-Site Scripting (XSS) armazenado na descricao da tarefa (Modulo 3/4)
-  3. Segredo de sessao (SECRET_KEY) hardcoded no codigo (Modulo 1/3)
-  4. Senhas armazenadas em texto puro no banco (Modulo 2/3)
-  5. Endpoint de debug exposto publicamente (Modulo 2/4)
-  6. Dependencias com CVEs conhecidas em requirements.txt (Modulo 3 - SCA)
-
-Ao longo dos encontros, cada uma dessas falhas sera identificada por uma
-ferramenta especifica da esteira e corrigida em uma versao "fixed" do codigo.
+TaskFlow - aplicacao de exemplo da disciplina DevSecOps, ja corrigida pela
+esteira do grupo. As vulnerabilidades da linha de base e como cada uma foi
+tratada estao documentadas no README.
 """
 
 import os
@@ -168,23 +155,7 @@ def new_task():
     return render_template("new_task.html")
 
 
-# Vulnerabilidade #5: endpoint de debug/diagnostico exposto sem
-# autenticacao, vazando informacoes internas do servidor.
-@app.route("/debug/info")
-def debug_info():
-    import platform
-    import sys
-
-    return {
-        "python_version": sys.version,
-        "platform": platform.platform(),
-        "secret_key": app.config["SECRET_KEY"],
-    }
-
-
 if __name__ == "__main__":
     with app.app_context():
         init_db()
-    # debug=True em producao expoe o Werkzeug debugger interativo
-    # (execucao remota de codigo) - tambem sera sinalizado pelo SAST.
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000)
