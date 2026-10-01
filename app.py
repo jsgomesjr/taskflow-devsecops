@@ -121,8 +121,11 @@ def tasks():
 
     if search:
         rows = db.execute(
-            "SELECT * FROM tasks WHERE user_id = ? AND title LIKE ?",
-            (session["user_id"], f"%{search}%"),
+            "SELECT * FROM tasks WHERE user_id = "
+            + str(session["user_id"])
+            + " AND title LIKE '%"
+            + search
+            + "%'"
         ).fetchall()
     else:
         rows = db.execute("SELECT * FROM tasks WHERE user_id = ?", (session["user_id"],)).fetchall()
