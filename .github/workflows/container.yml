@@ -1,0 +1,46 @@
+name: Container
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKERFILE: Dockerfile
+  IMAGE: taskflow:${{ github.sha }}
+
+jobs:
+  imagem:
+    name: Container - build e Trivy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Build da imagem
+        run: docker build --pull --file "$DOCKERFILE" --tag "$IMAGE" .
+
+      - name: Trivy na imagem (gate HIGH,CRITICAL)
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan-type: image
+          scan-ref: ${{ env.IMAGE }}
+
+      - name: Trivy na configuracao do Dockerfile (gate HIGH,CRITICAL)
+        uses: ./.github/actions/trivy-scan
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: misconfig
