@@ -1,0 +1,35 @@
+== Regras padrao do Gitleaks (nao detectam os segredos de baixa entropia):
+4:09PM INF 1 commits scanned.
+4:09PM INF scanned ~8356 bytes (8.36 KB) in 33.7ms
+4:09PM INF no leaks found
+
+== Regras padrao + regras customizadas do .gitleaks.toml, sem a allowlist:
+Finding:     ENV ADMIN_PASSWORD=REDACTED
+Secret:      REDACTED
+RuleID:      dockerfile-secret-in-env-arg
+Entropy:     3.000000
+File:        Dockerfile
+Line:        22
+Commit:      b323e5f0b29584a8f69f6bc433bcfc45620098e1
+Author:      José Gomes
+Email:       jsgomesjrr@gmail.com
+Date:        2026-10-01T16:09:26Z
+Fingerprint: b323e5f0b29584a8f69f6bc433bcfc45620098e1:Dockerfile:dockerfile-secret-in-env-arg:22
+Link:        https://github.com/jsgomesjr/taskflow-devsecops/blob/b323e5f0b29584a8f69f6bc433bcfc45620098e1/Dockerfile#L22
+
+Finding:     app.config["SECRET_KEY"] = "REDACTED"
+Secret:      REDACTED
+RuleID:      flask-secret-key-hardcoded
+Entropy:     3.819114
+File:        app.py
+Line:        28
+Commit:      b323e5f0b29584a8f69f6bc433bcfc45620098e1
+Author:      José Gomes
+Email:       jsgomesjrr@gmail.com
+Date:        2026-10-01T16:09:26Z
+Fingerprint: b323e5f0b29584a8f69f6bc433bcfc45620098e1:app.py:flask-secret-key-hardcoded:28
+Link:        https://github.com/jsgomesjr/taskflow-devsecops/blob/b323e5f0b29584a8f69f6bc433bcfc45620098e1/app.py#L28
+
+5:19PM INF 1 commits scanned.
+5:19PM INF scanned ~8356 bytes (8.36 KB) in 40.4ms
+5:19PM WRN leaks found: 2
