@@ -1,0 +1,7 @@
+# So o necessario para a imagem entra no contexto de build; segredos,
+# historico do Git, ambientes locais e artefatos de teste ficam de fora.
+*
+!app.py
+!gunicorn.conf.py
+!requirements.txt
+!templates/
