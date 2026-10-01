@@ -17,23 +17,31 @@ Ao longo dos encontros, cada uma dessas falhas sera identificada por uma
 ferramenta especifica da esteira e corrigida em uma versao "fixed" do codigo.
 """
 
+import os
 import sqlite3
 
 from flask import Flask, g, redirect, request, session, url_for
 
-# Vulnerabilidade #3: segredo hardcoded no repositorio.
-# Uma ferramenta de SAST/secret-scanning (ex: Gitleaks, Semgrep) deve
-# sinalizar esta linha como "Hardcoded Secret".
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "s3gr3d0-super-secreto-nao-mude-nunca"
 
-DATABASE = "taskflow.db"
+def require_env(name):
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(
+            f"Variavel de ambiente {name} nao foi definida. "
+            "Configure-a antes de iniciar a aplicacao (veja o README)."
+        )
+    return value
+
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = require_env("TASKFLOW_SECRET_KEY")
+app.config["DATABASE"] = os.environ.get("TASKFLOW_DATABASE", "taskflow.db")
 
 
 def get_db():
     db = getattr(g, "_database", None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
+        db = g._database = sqlite3.connect(app.config["DATABASE"])
         db.row_factory = sqlite3.Row
     return db
 
