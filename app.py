@@ -93,9 +93,7 @@ def login():
         password = request.form["password"]
 
         db = get_db()
-        user = db.execute(
-            "SELECT * FROM users WHERE username = ?", (username,)
-        ).fetchone()
+        user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
 
         if user and check_password_hash(user["password"], password):
             session.clear()
@@ -127,13 +125,9 @@ def tasks():
             (session["user_id"], f"%{search}%"),
         ).fetchall()
     else:
-        rows = db.execute(
-            "SELECT * FROM tasks WHERE user_id = ?", (session["user_id"],)
-        ).fetchall()
+        rows = db.execute("SELECT * FROM tasks WHERE user_id = ?", (session["user_id"],)).fetchall()
 
-    return render_template(
-        "tasks.html", username=session["username"], search=search, tasks=rows
-    )
+    return render_template("tasks.html", username=session["username"], search=search, tasks=rows)
 
 
 @app.route("/tasks/new", methods=["GET", "POST"])
